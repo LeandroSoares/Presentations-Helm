@@ -1,4 +1,4 @@
-# Lab Sessão 2 - Helm Avançado
+# Lab Deep Dive - Helm Avançado
 
 ## Objetivo
 

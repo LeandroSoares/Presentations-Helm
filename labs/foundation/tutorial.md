@@ -1,4 +1,4 @@
-# Lab Sessão 1 - Ciclo mínimo de Helm
+# Lab Foundation - Ciclo mínimo de Helm
 
 ## Objetivo
 
