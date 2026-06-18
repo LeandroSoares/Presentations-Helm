@@ -1,10 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <meta http-equiv="refresh" content="0; url=presentation/">
-  <title>Redirecionando...</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helm Workshop — Apresentações</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-bg: #0a0f14;
+      --color-bg-deep: #05080c;
+      --color-text: #ecfeff;
+      --color-text-secondary: #cbd5e1;
+      --color-accent-1: #06b6d4;
+      --color-accent-2: #22c55e;
+      --color-accent-3: #8b5cf6;
+      --color-glass-bg: rgba(255,255,255,0.03);
+      --color-glass-border: rgba(255,255,255,0.08);
+      --font-display: 'JetBrains Mono', monospace;
+      --font-body: 'Inter', sans-serif;
+    }
+  </style>
+  <style>
+    body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
+    .glass-card { background: var(--color-glass-bg); border: 1px solid var(--color-glass-border); backdrop-filter: blur(12px); border-radius: 24px; transition: all 0.3s ease; text-decoration: none; display: flex; flex-direction: column; }
+    .glass-card:hover { transform: translateY(-4px); background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    .gradient-mesh { position: fixed; inset: 0; z-index: -1; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15; animation: float 10s infinite ease-in-out; }
+    @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+  </style>
 </head>
 <body>
-  <p>Redirecionando para a apresentação... Se não for redirecionado automaticamente, <a href="presentation/">clique aqui</a>.</p>
+  <div class="gradient-mesh">
+    <div class="blob" style="width:400px;height:400px;top:-100px;right:-100px;background:var(--color-accent-1);animation-delay:0s;"></div>
+    <div class="blob" style="width:300px;height:300px;bottom:-50px;left:-50px;background:var(--color-accent-3);animation-delay:-5s;"></div>
+  </div>
+
+  <div class="max-w-4xl w-full px-6 py-12">
+    <div class="text-center mb-16">
+      <div class="text-6xl mb-6">⎈</div>
+      <h1 class="font-display text-4xl md:text-5xl font-black mb-4">Helm Workshop</h1>
+      <p class="text-xl text-text-secondary tracking-widest uppercase">Portal de Apresentações</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <a href="presentation/sessao-1.html" class="glass-card p-8 group">
+        <div class="w-14 h-14 rounded-full bg-accent-1/20 flex items-center justify-center text-accent-1 mb-6 text-2xl group-hover:scale-110 transition-transform">01</div>
+        <h2 class="font-display text-2xl font-bold mb-3">Helm Foundations</h2>
+        <p class="text-text-secondary leading-relaxed flex-grow">O ciclo de vida essencial de operação e empacotamento com Helm. Resolvendo a dor do YAML no dia a dia.</p>
+        <div class="mt-8 text-accent-1 font-semibold flex items-center gap-2">Acessar Sessão <span class="group-hover:translate-x-1 transition-transform">→</span></div>
+      </a>
+
+      <a href="presentation/sessao-2.html" class="glass-card p-8 group">
+        <div class="w-14 h-14 rounded-full bg-accent-3/20 flex items-center justify-center text-accent-3 mb-6 text-2xl group-hover:scale-110 transition-transform">02</div>
+        <h2 class="font-display text-2xl font-bold mb-3">Helm Deep Dive</h2>
+        <p class="text-text-secondary leading-relaxed flex-grow">Práticas avançadas, governança de contrato com schema, helpers, reuso e troubleshooting em produção.</p>
+        <div class="mt-8 text-accent-3 font-semibold flex items-center gap-2">Acessar Sessão <span class="group-hover:translate-x-1 transition-transform">→</span></div>
+      </a>
+    </div>
+  </div>
 </body>
 </html>
