@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helm Demo App</title>
+    <style>
+        body {
+            /* A variável abaixo será substituída pelo Nginx na inicialização do container */
+            background-color: ${BG_COLOR};
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+            transition: background-color 0.5s ease;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 { margin-top: 0; color: #111; }
+        code { background: #eee; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>⎈ App de Teste do Helm</h1>
+        <p>A cor do fundo atual é: <code>${BG_COLOR}</code></p>
+        <p>Mude o valor no <strong>ConfigMap</strong> (via <code>values.yaml</code>) para ver a cor alterar num novo Deploy!</p>
+    </div>
+</body>
+</html>
