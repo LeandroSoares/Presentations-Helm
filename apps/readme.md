@@ -8,7 +8,7 @@ para subir a aplicação:
 docker build -t presentation-helm .
 
 2. tag para o repositório do google
-docker tag presentation-helm gcr.io/presentaion-helm/presentation-helm:v1.0.0
+docker tag presentation-helm gcr.io/presentation-helm/presentation-helm:v1.0.0
 
 3. subir para o repositório
-docker push gcr.io/presentaion-helm/presentation-helm:v1.0.0
+docker push gcr.io/presentation-helm/presentation-helm:v1.0.0
