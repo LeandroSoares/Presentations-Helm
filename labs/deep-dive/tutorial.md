@@ -89,7 +89,7 @@ Em seguida, abra o arquivo `advanced-chart/templates/deployment.yaml` e substitu
     matchLabels:
       {{- include "advanced-chart.selectorLabels" . | nindent 6 }}
 ```
-Faça o mesmo na raiz de `labels` dentro de `metadata` e `template.metadata`. O `helm template` confirmará que o YAML final continua idêntico, mas agora seu código está DRY (Don't Repeat Yourself).
+Faça o mesmo na raiz de `labels` dentro de `metadata` (usando `nindent 4`) e `template.metadata` (usando `nindent 8`). Preste bastante atenção na indentação para o YAML não quebrar! O `helm template` confirmará que o YAML final continua idêntico, mas agora seu código está DRY (Don't Repeat Yourself).
 
 ### 4. Criar um Teste Pós-Deploy
 
