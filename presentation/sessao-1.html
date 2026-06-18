@@ -123,7 +123,7 @@
       <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-6 reveal">A dor antes do Helm</h2>
       <div class="grid grid-cols-2 gap-6 mt-6">
         <div class="terminal-card p-7 reveal"><h3 class="font-display text-xl mb-3">Complexidade operacional</h3><ul class="text-lg text-text-secondary space-y-3"><li>Muito YAML repetido para ambientes diferentes.</li><li>Dificuldade de rastrear o que entrou no deploy.</li><li>Rollback manual e inseguro.</li></ul></div>
-        <div class="terminal-card p-7 reveal"><h3 class="font-display text-xl mb-3">Impacto no time</h3><ul class="text-lg text-text-secondary space-y-3"><li>Pouca clareza sobre qual versão está rodando.</li><li>Deploy vira coleção de objetos soltos.</li><li>Erro de render no cluster custa mais caro.</li></ul></div>
+        <div class="terminal-card p-7 reveal"><h3 class="font-display text-xl mb-3">Impacto no time</h3><ul class="text-lg text-text-secondary space-y-3"><li>Pouca clareza sobre qual versão está rodando.</li><li>Deploy vira coleção de objetos soltos.</li><li>Aplicar manifest errado no cluster custa mais caro.</li></ul></div>
       </div>
       <blockquote class="mt-8 border-l-4 border-accent-1 bg-glass-bg rounded-r-xl p-5 text-xl text-text-secondary reveal">Kubernetes entende objetos. Helm ajuda a tratar aplicações como pacotes versionados.</blockquote>
     </div>
@@ -191,12 +191,12 @@
   templates/
     deployment.yaml
     service.yaml
-  values.schema.json</div>
+  values.schema.json  # opcional</div>
         <div class="space-y-4 reveal">
           <div class="terminal-card p-5"><strong class="text-accent-1">Chart.yaml</strong><p class="text-text-secondary mt-2">Identidade e versão do pacote.</p></div>
           <div class="terminal-card p-5"><strong class="text-accent-1">values.yaml</strong><p class="text-text-secondary mt-2">Contrato de configuração.</p></div>
           <div class="terminal-card p-5"><strong class="text-accent-1">templates/</strong><p class="text-text-secondary mt-2">Recursos Kubernetes renderizados.</p></div>
-          <div class="terminal-card p-5"><strong class="text-accent-1">values.schema.json</strong><p class="text-text-secondary mt-2">Validação de entrada antes de quebrar no deploy.</p></div>
+          <div class="terminal-card p-5"><strong class="text-accent-1">values.schema.json</strong><p class="text-text-secondary mt-2">Validação de entrada antes de quebrar no deploy. <em>(opcional)</em></p></div>
         </div>
       </div>
     </div>
@@ -288,7 +288,7 @@ helm rollback myapp 1 -n apps</div>
         <div class="terminal-card p-7 reveal"><div class="big-num">02</div><p class="text-text-secondary mt-2 text-lg">Ajustar <code>values.yaml</code> para imagem, porta e réplicas.</p></div>
         <div class="terminal-card p-7 reveal"><div class="big-num">03</div><p class="text-text-secondary mt-2 text-lg">Rodar <code>helm lint</code> e <code>helm template</code>.</p></div>
         <div class="terminal-card p-7 reveal"><div class="big-num">04</div><p class="text-text-secondary mt-2 text-lg">Instalar no namespace <code>helm-workshop</code>.</p></div>
-        <div class="terminal-card p-7 reveal"><div class="big-num">05</div><p class="text-text-secondary mt-2 text-lg">Alterar réplica e executar rollback.</p></div>
+        <div class="terminal-card p-7 reveal"><div class="big-num">05</div><p class="text-text-secondary mt-2 text-lg">Alterar configuração e executar rollback.</p></div>
         <div class="terminal-card p-7 reveal"><div class="text-3xl mb-2">📄</div><p class="text-text-secondary mt-2 text-lg">Arquivo completo: <code>labs/sessao-1/tutorial.md</code>.</p></div>
       </div>
     </div>
