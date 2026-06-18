@@ -70,6 +70,8 @@
     .tableish { display:grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
     .tableish .row { display: contents; }
     .tableish .cell { padding: 14px 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); border-radius: 14px; }
+    a.doc-link { color: var(--color-accent-1); text-decoration: none; border-bottom: 1px dashed rgba(6,182,212,0.4); transition: border-color 0.3s, color 0.3s; }
+    a.doc-link:hover { color: var(--color-accent-2); border-bottom-color: var(--color-accent-2); }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } }
   </style>
 </head>
@@ -231,8 +233,8 @@
         <div class="code-block reveal">helm lint ./chart
 helm template myapp ./chart -f values.yaml</div>
         <div class="space-y-4 reveal">
-          <div class="terminal-card p-5"><strong class="text-accent-1">lint</strong><p class="text-text-secondary mt-2">Valida a estrutura básica do chart.</p></div>
-          <div class="terminal-card p-5"><strong class="text-accent-1">template</strong><p class="text-text-secondary mt-2">Mostra o YAML final antes de tocar no cluster.</p></div>
+          <div class="terminal-card p-5"><a href="https://helm.sh/docs/helm/helm_lint/" target="_blank" class="doc-link"><strong class="text-accent-1">lint</strong></a><p class="text-text-secondary mt-2">Valida a estrutura básica do chart.</p></div>
+          <div class="terminal-card p-5"><a href="https://helm.sh/docs/helm/helm_template/" target="_blank" class="doc-link"><strong class="text-accent-1">template</strong></a><p class="text-text-secondary mt-2">Mostra o YAML final antes de tocar no cluster.</p></div>
           <blockquote class="border-l-4 border-accent-3 bg-glass-bg rounded-r-xl p-4 text-text-secondary">Se o render já está errado, o cluster só vai deixar o erro mais caro.</blockquote>
         </div>
       </div>
@@ -247,9 +249,9 @@ helm template myapp ./chart -f values.yaml</div>
 helm history myapp -n apps
 helm rollback myapp 1 -n apps</div>
       <div class="grid grid-cols-3 gap-5 mt-8">
-        <div class="terminal-card p-6 reveal"><h3 class="font-display text-xl mb-3">upgrade --install</h3><p class="text-text-secondary">Padrão mais seguro para automação e idempotência.</p></div>
-        <div class="terminal-card p-6 reveal"><h3 class="font-display text-xl mb-3">history</h3><p class="text-text-secondary">Linha do tempo da release para auditoria e diagnóstico.</p></div>
-        <div class="terminal-card p-6 reveal"><h3 class="font-display text-xl mb-3">rollback</h3><p class="text-text-secondary">Retorno controlado para uma revision anterior.</p></div>
+        <div class="terminal-card p-6 reveal"><h3 class="font-display text-xl mb-3"><a href="https://helm.sh/docs/helm/helm_upgrade/" target="_blank" class="doc-link">upgrade --install</a></h3><p class="text-text-secondary">Padrão mais seguro para automação e idempotência.</p></div>
+        <div class="terminal-card p-6 reveal"><h3 class="font-display text-xl mb-3"><a href="https://helm.sh/docs/helm/helm_history/" target="_blank" class="doc-link">history</a></h3><p class="text-text-secondary">Linha do tempo da release para auditoria e diagnóstico.</p></div>
+        <div class="terminal-card p-6 reveal"><h3 class="font-display text-xl mb-3"><a href="https://helm.sh/docs/helm/helm_rollback/" target="_blank" class="doc-link">rollback</a></h3><p class="text-text-secondary">Retorno controlado para uma revision anterior.</p></div>
       </div>
     </div>
   </div>
@@ -259,11 +261,11 @@ helm rollback myapp 1 -n apps</div>
     <div class="content">
       <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">O ciclo mínimo profissional</h2>
       <div class="timeline reveal">
-        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">1. lint</strong><p class="text-text-secondary mt-1">Valida estrutura e problemas básicos.</p></div>
-        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">2. template</strong><p class="text-text-secondary mt-1">Revisa o YAML final antes do apply.</p></div>
-        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">3. upgrade --install</strong><p class="text-text-secondary mt-1">Entrega de forma reproduzível.</p></div>
-        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">4. history</strong><p class="text-text-secondary mt-1">Audita a linha do tempo da release.</p></div>
-        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">5. rollback</strong><p class="text-text-secondary mt-1">Recupera rápido quando necessário.</p></div>
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">1. <a href="https://helm.sh/docs/helm/helm_lint/" target="_blank" class="doc-link">lint</a></strong><p class="text-text-secondary mt-1">Valida estrutura e problemas básicos.</p></div>
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">2. <a href="https://helm.sh/docs/helm/helm_template/" target="_blank" class="doc-link">template</a></strong><p class="text-text-secondary mt-1">Revisa o YAML final antes do apply.</p></div>
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">3. <a href="https://helm.sh/docs/helm/helm_upgrade/" target="_blank" class="doc-link">upgrade --install</a></strong><p class="text-text-secondary mt-1">Entrega de forma reproduzível.</p></div>
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">4. <a href="https://helm.sh/docs/helm/helm_history/" target="_blank" class="doc-link">history</a></strong><p class="text-text-secondary mt-1">Audita a linha do tempo da release.</p></div>
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">5. <a href="https://helm.sh/docs/helm/helm_rollback/" target="_blank" class="doc-link">rollback</a></strong><p class="text-text-secondary mt-1">Recupera rápido quando necessário.</p></div>
       </div>
     </div>
   </div>
@@ -283,7 +285,7 @@ helm rollback myapp 1 -n apps</div>
     <div class="content">
       <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">Lab: o que observar</h2>
       <div class="grid grid-cols-2 gap-6">
-        <div class="terminal-card p-7 reveal"><div class="big-num">01</div><p class="text-text-secondary mt-2 text-lg">Criar base com <code>helm create workshop-app</code>.</p></div>
+        <div class="terminal-card p-7 reveal"><div class="big-num">01</div><p class="text-text-secondary mt-2 text-lg">Criar base com <code><a href="https://helm.sh/docs/helm/helm_create/" target="_blank" class="doc-link">helm create</a> workshop-app</code>.</p></div>
         <div class="terminal-card p-7 reveal"><div class="big-num">02</div><p class="text-text-secondary mt-2 text-lg">Ajustar <code>values.yaml</code> para imagem, porta e réplicas.</p></div>
         <div class="terminal-card p-7 reveal"><div class="big-num">03</div><p class="text-text-secondary mt-2 text-lg">Rodar <code>helm lint</code> e <code>helm template</code>.</p></div>
         <div class="terminal-card p-7 reveal"><div class="big-num">04</div><p class="text-text-secondary mt-2 text-lg">Instalar no namespace <code>helm-workshop</code>.</p></div>
