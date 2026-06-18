@@ -1,0 +1,2 @@
+# Esse docker usa uma imagem nginx bem leve.
+# ele passa para o html por variável de ambiente a cor do background para podermos testar uma alteração de configuração de configmap e poder mostrar isso via helm
