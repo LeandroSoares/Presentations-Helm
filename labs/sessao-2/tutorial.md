@@ -10,11 +10,11 @@ Vamos trabalhar na pasta `advanced-chart`, que é uma evolução do chart que co
 
 ## Passos do Laboratório
 
-### 1. Criar o Contrato (JSON Schema)
+### 1. Entender o Contrato (JSON Schema)
 
 O Helm suporta um arquivo de schema para validar os dados do `values.yaml` antes de processar qualquer template. 
 
-Crie um arquivo chamado `values.schema.json` na raiz do diretório `advanced-chart` com o seguinte conteúdo:
+Abra o arquivo `values.schema.json` na raiz do diretório `advanced-chart` e observe as regras definidas:
 
 ```json
 {
