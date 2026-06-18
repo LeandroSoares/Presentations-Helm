@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="slides-format" content="viewport">
+  <title>Helm Foundations — Primeiro contato e operação mínima</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-bg: #0a0f14;
+      --color-bg-deep: #05080c;
+      --color-surface: #111827;
+      --color-text: #ecfeff;
+      --color-text-secondary: #cbd5e1;
+      --color-text-muted: #7dd3fc;
+      --color-accent-1: #06b6d4;
+      --color-accent-2: #22c55e;
+      --color-accent-3: #f59e0b;
+      --color-glass-bg: rgba(255,255,255,0.05);
+      --color-glass-border: rgba(255,255,255,0.10);
+      --color-vignette: rgba(0,0,0,0.42);
+      --font-display: 'JetBrains Mono', monospace;
+      --font-body: 'Inter', sans-serif;
+    }
+  </style>
+  <style>
+    :root { --color-bg: #0a0f14; --color-text: #ecfeff; --glow-color-rgb: 6,182,212; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { background: var(--color-bg); margin: 0; }
+    body { font-family: var(--font-body); color: var(--color-text); overflow: hidden; height: 100vh; width: 100vw; }
+    .deck { width: 100vw; height: 100vh; position: relative; }
+    .slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at top left, rgba(6,182,212,0.08), transparent 28%), radial-gradient(circle at bottom right, rgba(34,197,94,0.07), transparent 26%), var(--color-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transform: scale(0.95); transition: opacity 0.7s ease, transform 0.7s ease; pointer-events: none; overflow: hidden; }
+    .slide.active { opacity: 1; transform: scale(1); pointer-events: all; }
+    .slide > .content { position: relative; z-index: 2; width: 100%; max-width: 1180px; padding: clamp(1.5rem, 4vw, 4rem); }
+    .nav-controls { position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; z-index: 100; background: rgba(8,15,22,0.72); backdrop-filter: blur(10px); padding: 10px 24px; border-radius: 40px; border: 1px solid var(--color-glass-border); }
+    .nav-btn { width: 40px; height: 40px; border: none; background: var(--color-glass-bg); color: var(--color-accent-1); border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.3s; }
+    .nav-btn:hover { background: var(--color-glass-border); }
+    .slide-dots { display: flex; gap: 8px; }
+    .slide-dots .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.16); cursor: pointer; transition: background 0.3s, transform 0.3s; }
+    .slide-dots .dot.active { background: var(--color-accent-1); transform: scale(1.3); }
+    .slide-counter { font-size: 0.8rem; color: var(--color-text-muted); min-width: 48px; text-align: center; }
+    .reveal { opacity: 0; transform: translateY(20px); }
+    .gradient-mesh { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+    .blob { position: absolute; border-radius: 50%; filter: blur(80px); animation: float-slow 12s ease-in-out infinite; }
+    .blob:nth-child(2) { animation: float-drift 16s ease-in-out infinite; }
+    .blob:nth-child(3) { animation: float-slow 20s ease-in-out infinite reverse; }
+    @keyframes float-slow { 0% { transform: translate(0,0) scale(1);} 25% { transform: translate(60px,-50px) scale(1.12);} 50% { transform: translate(-40px,40px) scale(0.92);} 75% { transform: translate(50px,20px) scale(1.08);} 100% { transform: translate(0,0) scale(1);} }
+    @keyframes float-drift { 0% { transform: translate(0,0) scale(1) rotate(0deg);} 33% { transform: translate(-50px,-60px) scale(1.15) rotate(3deg);} 66% { transform: translate(40px,30px) scale(0.88) rotate(-2deg);} 100% { transform: translate(0,0) scale(1) rotate(0deg);} }
+    @keyframes float { 0%,100% { transform: translateY(0);} 50% { transform: translateY(-15px);} }
+    .slide::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); background-repeat: repeat; background-size: 256px 256px; opacity: 0.03; mix-blend-mode: overlay; }
+    .slide::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: radial-gradient(ellipse at center, transparent 50%, var(--color-vignette) 100%); }
+    .text-glow { text-shadow: 0 0 20px rgba(var(--glow-color-rgb), 0.45), 0 0 40px rgba(var(--glow-color-rgb), 0.18); }
+    .terminal-card { background: linear-gradient(180deg, rgba(15,23,42,0.95), rgba(2,8,23,0.95)); border: 1px solid rgba(34,211,238,0.22); border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+    .code-block { background: #0f172a; border: 1px solid rgba(34,211,238,0.18); border-radius: 16px; padding: 1rem 1.2rem; font-family: 'JetBrains Mono', monospace; color: #e2e8f0; white-space: pre-wrap; line-height: 1.5; }
+    .accent-line { height: 4px; border-radius: 999px; background: linear-gradient(90deg, var(--color-accent-1), var(--color-accent-2), var(--color-accent-3)); }
+    .matrix-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 14px; }
+    .matrix-grid > div { min-height: 76px; }
+    .big-num { font-family: 'JetBrains Mono', monospace; font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 800; }
+    .pill { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; padding: 0.45rem 0.9rem; background: rgba(255,255,255,0.04); }
+    .timeline { position: relative; padding-left: 28px; }
+    .timeline::before { content:''; position:absolute; left:6px; top:12px; bottom:12px; width:2px; background: linear-gradient(180deg, var(--color-accent-1), var(--color-accent-2)); }
+    .timeline-item { position: relative; margin-bottom: 18px; }
+    .timeline-item::before { content:''; position:absolute; left:-26px; top:10px; width:14px; height:14px; border-radius:50%; background: var(--color-accent-1); box-shadow: 0 0 18px rgba(6,182,212,0.65); }
+    .bar-track { width: 100%; height: 24px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--color-accent-1), var(--color-accent-2)); width: 0%; }
+    .tableish { display:grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
+    .tableish .row { display: contents; }
+    .tableish .cell { padding: 14px 16px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); border-radius: 14px; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2s !important; } }
+  </style>
+</head>
+<body>
+<div class="mouse-spotlight" style="position:fixed;inset:0;z-index:99;pointer-events:none;"></div>
+<div class="deck">
+
+  <div class="slide slide-1 active" data-slide="1">
+    <div class="gradient-mesh">
+      <div class="blob" style="width:500px;height:500px;top:-120px;right:-120px;background:var(--color-accent-1);opacity:0.15;"></div>
+      <div class="blob" style="width:320px;height:320px;bottom:-80px;left:-80px;background:var(--color-accent-2);opacity:0.12;"></div>
+      <div class="blob" style="width:220px;height:220px;top:42%;left:16%;background:var(--color-accent-3);opacity:0.1;"></div>
+    </div>
+    <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1;"></canvas>
+    <div class="content text-center">
+      <div class="text-[110px] mb-5 animate-[float_3s_ease-in-out_infinite] reveal">⎈</div>
+      <div class="pill mx-auto mb-5 reveal">Kubernetes · Helm · operação mínima</div>
+      <h1 class="font-display text-[clamp(2.4rem,5.6vw,4.8rem)] font-black bg-linear-to-br from-accent-1 via-accent-2 to-accent-3 bg-clip-text text-transparent tracking-tight mb-4 reveal">Helm Foundations</h1>
+      <p class="text-[clamp(0.9rem,1.5vw,1.35rem)] font-semibold text-text-muted tracking-[5px] uppercase reveal">Primeiro contato e operação mínima</p>
+      <p class="mt-8 text-lg text-text-secondary reveal">Leandro Soares</p>
+    </div>
+  </div>
+
+  <div class="slide slide-2" data-slide="2">
+    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-80px;right:-80px;background:var(--color-accent-1);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-50px;left:-50px;background:var(--color-accent-2);opacity:0.06;"></div></div>
+    <div class="content">
+      <p class="uppercase tracking-[0.18em] text-text-muted mb-4 reveal">Objetivo</p>
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">O que esta sessão precisa destravar</h2>
+      <div class="grid grid-cols-2 gap-6 mt-8">
+        <div class="terminal-card p-8 hover:-translate-y-1 hover:shadow-xl transition reveal"><div class="text-3xl mb-4">🎯</div><h3 class="font-display text-2xl mb-3">Entender o porquê</h3><p class="text-text-secondary text-lg">Por que Helm existe no dia a dia de Kubernetes e qual dor operacional ele resolve.</p></div>
+        <div class="terminal-card p-8 hover:-translate-y-1 hover:shadow-xl transition reveal"><div class="text-3xl mb-4">🔁</div><h3 class="font-display text-2xl mb-3">Dominar o ciclo mínimo</h3><p class="text-text-secondary text-lg">Validar, renderizar, instalar, auditar e reverter com segurança.</p></div>
+        <div class="terminal-card p-8 hover:-translate-y-1 hover:shadow-xl transition reveal"><div class="text-3xl mb-4">🧪</div><h3 class="font-display text-2xl mb-3">Repetir em casa</h3><p class="text-text-secondary text-lg">Sair com um laboratório simples para consolidar o fluxo sem medo.</p></div>
+        <div class="terminal-card p-8 hover:-translate-y-1 hover:shadow-xl transition reveal"><div class="text-3xl mb-4">✅</div><h3 class="font-display text-2xl mb-3">Meta prática</h3><p class="text-text-secondary text-lg">Ninguém precisa virar especialista hoje; todo mundo precisa entender o fluxo.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-3" data-slide="3">
+    <div class="gradient-mesh"><div class="blob" style="width:320px;height:320px;top:-60px;right:-60px;background:var(--color-accent-1);opacity:0.08;"></div><div class="blob" style="width:220px;height:220px;bottom:-50px;left:-40px;background:var(--color-accent-3);opacity:0.06;"></div></div>
+    <div class="content">
+      <p class="uppercase tracking-[0.18em] text-text-muted mb-4 reveal">Agenda</p>
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">Roteiro de 45 minutos reais</h2>
+      <div class="grid grid-cols-2 gap-5 reveal">
+        <div class="terminal-card p-6"><div class="big-num text-glow">01</div><h3 class="font-display text-xl mt-3">Fundamentos e problema</h3><p class="text-text-secondary mt-2">10 min para alinhar dor, contexto e motivação.</p></div>
+        <div class="terminal-card p-6"><div class="big-num text-glow">02</div><h3 class="font-display text-xl mt-3">Anatomia mínima de chart</h3><p class="text-text-secondary mt-2">10 min para entender contrato, templates e estrutura.</p></div>
+        <div class="terminal-card p-6"><div class="big-num text-glow">03</div><h3 class="font-display text-xl mt-3">Operação mínima</h3><p class="text-text-secondary mt-2">10 min para o fluxo profissional com release e rollback.</p></div>
+        <div class="terminal-card p-6"><div class="big-num text-glow">04</div><h3 class="font-display text-xl mt-3">Lab ao vivo + fechamento</h3><p class="text-text-secondary mt-2">12 min de demo e 3 min para fechar o raciocínio.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-4" data-slide="4">
+    <div class="gradient-mesh"><div class="blob" style="width:460px;height:460px;top:-120px;right:-100px;background:var(--color-accent-1);opacity:0.12;"></div><div class="blob" style="width:280px;height:280px;bottom:-60px;left:-60px;background:var(--color-accent-2);opacity:0.1;"></div></div>
+    <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1;"></canvas>
+    <div class="content text-center">
+      <p class="uppercase tracking-[0.22em] text-text-muted mb-4 reveal">Parte 1</p>
+      <h2 class="font-display text-[clamp(2.4rem,5vw,4rem)] font-black reveal">Por que Helm existe?</h2>
+      <p class="text-2xl text-text-secondary mt-6 reveal">Da dor do YAML repetido ao pacote versionado com histórico.</p>
+    </div>
+  </div>
+
+  <div class="slide slide-5" data-slide="5">
+    <div class="gradient-mesh"><div class="blob" style="width:350px;height:350px;top:-70px;right:-70px;background:var(--color-accent-3);opacity:0.08;"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;left:-30px;background:var(--color-accent-1);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-6 reveal">A dor antes do Helm</h2>
+      <div class="grid grid-cols-2 gap-6 mt-6">
+        <div class="terminal-card p-7 reveal"><h3 class="font-display text-xl mb-3">Complexidade operacional</h3><ul class="text-lg text-text-secondary space-y-3"><li>Muito YAML repetido para ambientes diferentes.</li><li>Dificuldade de rastrear o que entrou no deploy.</li><li>Rollback manual e inseguro.</li></ul></div>
+        <div class="terminal-card p-7 reveal"><h3 class="font-display text-xl mb-3">Impacto no time</h3><ul class="text-lg text-text-secondary space-y-3"><li>Pouca clareza sobre qual versão está rodando.</li><li>Deploy vira coleção de objetos soltos.</li><li>Erro de render no cluster custa mais caro.</li></ul></div>
+      </div>
+      <blockquote class="mt-8 border-l-4 border-accent-1 bg-glass-bg rounded-r-xl p-5 text-xl text-text-secondary reveal">Kubernetes entende objetos. Helm ajuda a tratar aplicações como pacotes versionados.</blockquote>
+    </div>
+  </div>
+
+  <div class="slide slide-6" data-slide="6">
+    <div class="gradient-mesh"><div class="blob" style="width:360px;height:360px;top:-70px;right:-70px;background:var(--color-accent-1);opacity:0.08;"></div><div class="blob" style="width:260px;height:260px;bottom:-60px;left:-30px;background:var(--color-accent-2);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">O que Helm é e o que não é</h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="terminal-card p-8 reveal"><div class="text-3xl mb-4">✅</div><h3 class="font-display text-2xl mb-3">Helm é</h3><ul class="text-text-secondary text-lg space-y-3"><li>Package manager para Kubernetes.</li><li>Instala uma release versionada.</li><li>Fluxo previsível entre chart, values e manifests.</li></ul></div>
+        <div class="terminal-card p-8 reveal"><div class="text-3xl mb-4">🛑</div><h3 class="font-display text-2xl mb-3">Helm não é</h3><ul class="text-text-secondary text-lg space-y-3"><li>Substituto de Kubernetes.</li><li>Substituto de GitOps ou observabilidade.</li><li>Correção mágica para chart mal desenhado.</li></ul></div>
+      </div>
+      <div class="code-block mt-8 reveal">chart + values  ->  render  ->  manifests  ->  release</div>
+    </div>
+  </div>
+
+  <div class="slide slide-7" data-slide="7">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-60px;right:-60px;background:var(--color-accent-1);opacity:0.08;"></div><div class="blob" style="width:240px;height:240px;bottom:-50px;left:-40px;background:var(--color-accent-2);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">Conceitos-base</h2>
+      <div class="tableish reveal">
+        <div class="row"><div class="cell font-display text-xl">Chart</div><div class="cell text-lg text-text-secondary">Pacote com templates, values e metadados.</div></div>
+        <div class="row"><div class="cell font-display text-xl">Release</div><div class="cell text-lg text-text-secondary">Instância instalada de um chart.</div></div>
+        <div class="row"><div class="cell font-display text-xl">Values</div><div class="cell text-lg text-text-secondary">Configuração que alimenta os templates.</div></div>
+        <div class="row"><div class="cell font-display text-xl">Template</div><div class="cell text-lg text-text-secondary">YAML Kubernetes com Go Template.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-8" data-slide="8">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-70px;right:-60px;background:var(--color-accent-3);opacity:0.08;"></div><div class="blob" style="width:220px;height:220px;bottom:-50px;left:-40px;background:var(--color-accent-1);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">Helm vs Kustomize</h2>
+      <div class="matrix-grid reveal">
+        <div class="terminal-card p-5 font-display text-xl">Tema</div>
+        <div class="terminal-card p-5 font-display text-xl">Helm</div>
+        <div class="terminal-card p-5 font-display text-xl">Kustomize</div>
+        <div class="terminal-card p-5">Modelo</div><div class="terminal-card p-5 text-text-secondary">Template + values</div><div class="terminal-card p-5 text-text-secondary">Overlay e patch</div>
+        <div class="terminal-card p-5">Melhor para</div><div class="terminal-card p-5 text-text-secondary">Pacote reutilizável</div><div class="terminal-card p-5 text-text-secondary">Ajuste de manifest existente</div>
+        <div class="terminal-card p-5">Histórico</div><div class="terminal-card p-5 text-text-secondary">Nativo</div><div class="terminal-card p-5 text-text-secondary">Externo</div>
+      </div>
+      <p class="mt-8 text-xl text-text-secondary reveal"><span class="text-accent-1 font-semibold">Regra prática:</span> Helm para produto ou pacote; Kustomize para ajuste pontual.</p>
+    </div>
+  </div>
+
+  <div class="slide slide-9" data-slide="9">
+    <div class="gradient-mesh"><div class="blob" style="width:460px;height:460px;top:-110px;right:-100px;background:var(--color-accent-2);opacity:0.12;"></div><div class="blob" style="width:280px;height:280px;bottom:-60px;left:-60px;background:var(--color-accent-1);opacity:0.10;"></div></div>
+    <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1;"></canvas>
+    <div class="content text-center">
+      <p class="uppercase tracking-[0.22em] text-text-muted mb-4 reveal">Parte 2</p>
+      <h2 class="font-display text-[clamp(2.4rem,5vw,4rem)] font-black reveal">O que existe dentro de um chart?</h2>
+      <p class="text-2xl text-text-secondary mt-6 reveal">Estrutura mínima para operar, configurar e validar.</p>
+    </div>
+  </div>
+
+  <div class="slide slide-10" data-slide="10">
+    <div class="gradient-mesh"><div class="blob" style="width:350px;height:350px;top:-70px;right:-70px;background:var(--color-accent-1);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-60px;left:-30px;background:var(--color-accent-2);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-6 reveal">Anatomia mínima de chart</h2>
+      <div class="grid grid-cols-[1.1fr_1fr] gap-8 items-center">
+        <div class="code-block text-[1.05rem] reveal">workshop-app/
+  Chart.yaml
+  values.yaml
+  templates/
+    deployment.yaml
+    service.yaml
+  values.schema.json</div>
+        <div class="space-y-4 reveal">
+          <div class="terminal-card p-5"><strong class="text-accent-1">Chart.yaml</strong><p class="text-text-secondary mt-2">Identidade e versão do pacote.</p></div>
+          <div class="terminal-card p-5"><strong class="text-accent-1">values.yaml</strong><p class="text-text-secondary mt-2">Contrato de configuração.</p></div>
+          <div class="terminal-card p-5"><strong class="text-accent-1">templates/</strong><p class="text-text-secondary mt-2">Recursos Kubernetes renderizados.</p></div>
+          <div class="terminal-card p-5"><strong class="text-accent-1">values.schema.json</strong><p class="text-text-secondary mt-2">Validação de entrada antes de quebrar no deploy.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-11" data-slide="11">
+    <div class="gradient-mesh"><div class="blob" style="width:350px;height:350px;top:-70px;right:-70px;background:var(--color-accent-3);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-60px;left:-30px;background:var(--color-accent-1);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">Contrato vs implementação</h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="terminal-card p-8 reveal"><h3 class="font-display text-2xl mb-4">Contrato</h3><p class="text-text-secondary text-lg">`values.yaml` define o que o usuário pode mudar e quais parâmetros são esperados.</p><div class="accent-line mt-6"></div></div>
+        <div class="terminal-card p-8 reveal"><h3 class="font-display text-2xl mb-4">Implementação</h3><p class="text-text-secondary text-lg">`templates/` traduz configuração em objetos Kubernetes prontos para o cluster.</p><div class="accent-line mt-6"></div></div>
+      </div>
+      <blockquote class="mt-8 border-l-4 border-accent-1 bg-glass-bg rounded-r-xl p-5 text-xl text-text-secondary reveal">Se todo mundo precisa editar template, o contrato do chart está fraco.</blockquote>
+    </div>
+  </div>
+
+  <div class="slide slide-12" data-slide="12">
+    <div class="gradient-mesh"><div class="blob" style="width:460px;height:460px;top:-110px;right:-100px;background:var(--color-accent-1);opacity:0.12;"></div><div class="blob" style="width:280px;height:280px;bottom:-60px;left:-60px;background:var(--color-accent-3);opacity:0.10;"></div></div>
+    <canvas class="particle-canvas-ambient" style="position:absolute;inset:0;z-index:1;"></canvas>
+    <div class="content text-center">
+      <p class="uppercase tracking-[0.22em] text-text-muted mb-4 reveal">Parte 3</p>
+      <h2 class="font-display text-[clamp(2.4rem,5vw,4rem)] font-black reveal">Operação mínima</h2>
+      <p class="text-2xl text-text-secondary mt-6 reveal">O fluxo que reduz risco e deixa rollback sempre ao alcance.</p>
+    </div>
+  </div>
+
+  <div class="slide slide-13" data-slide="13">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-60px;right:-60px;background:var(--color-accent-1);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-50px;left:-40px;background:var(--color-accent-2);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-6 reveal">Antes de aplicar no cluster</h2>
+      <div class="grid grid-cols-[1.05fr_1fr] gap-8 items-center">
+        <div class="code-block reveal">helm lint ./chart
+helm template myapp ./chart -f values.yaml</div>
+        <div class="space-y-4 reveal">
+          <div class="terminal-card p-5"><strong class="text-accent-1">lint</strong><p class="text-text-secondary mt-2">Valida a estrutura básica do chart.</p></div>
+          <div class="terminal-card p-5"><strong class="text-accent-1">template</strong><p class="text-text-secondary mt-2">Mostra o YAML final antes de tocar no cluster.</p></div>
+          <blockquote class="border-l-4 border-accent-3 bg-glass-bg rounded-r-xl p-4 text-text-secondary">Se o render já está errado, o cluster só vai deixar o erro mais caro.</blockquote>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-14" data-slide="14">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-60px;right:-60px;background:var(--color-accent-2);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-50px;left:-40px;background:var(--color-accent-1);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-6 reveal">Operando a release</h2>
+      <div class="code-block reveal">helm upgrade --install myapp ./chart -n apps --create-namespace
+helm history myapp -n apps
+helm rollback myapp 1 -n apps</div>
+      <div class="grid grid-cols-3 gap-5 mt-8">
+        <div class="terminal-card p-6 reveal"><h3 class="font-display text-xl mb-3">upgrade --install</h3><p class="text-text-secondary">Padrão mais seguro para automação e idempotência.</p></div>
+        <div class="terminal-card p-6 reveal"><h3 class="font-display text-xl mb-3">history</h3><p class="text-text-secondary">Linha do tempo da release para auditoria e diagnóstico.</p></div>
+        <div class="terminal-card p-6 reveal"><h3 class="font-display text-xl mb-3">rollback</h3><p class="text-text-secondary">Retorno controlado para uma revision anterior.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-15" data-slide="15">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-60px;right:-60px;background:var(--color-accent-1);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-50px;left:-40px;background:var(--color-accent-3);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">O ciclo mínimo profissional</h2>
+      <div class="timeline reveal">
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">1. lint</strong><p class="text-text-secondary mt-1">Valida estrutura e problemas básicos.</p></div>
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">2. template</strong><p class="text-text-secondary mt-1">Revisa o YAML final antes do apply.</p></div>
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">3. upgrade --install</strong><p class="text-text-secondary mt-1">Entrega de forma reproduzível.</p></div>
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">4. history</strong><p class="text-text-secondary mt-1">Audita a linha do tempo da release.</p></div>
+        <div class="timeline-item terminal-card p-5"><strong class="text-accent-1">5. rollback</strong><p class="text-text-secondary mt-1">Recupera rápido quando necessário.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-16" data-slide="16">
+    <div class="gradient-mesh"><div class="blob" style="width:460px;height:460px;top:-110px;right:-100px;background:var(--color-accent-2);opacity:0.12;"></div><div class="blob" style="width:280px;height:280px;bottom:-60px;left:-60px;background:var(--color-accent-1);opacity:0.10;"></div></div>
+    <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1;"></canvas>
+    <div class="content text-center">
+      <p class="uppercase tracking-[0.22em] text-text-muted mb-4 reveal">Parte 4</p>
+      <h2 class="font-display text-[clamp(2.4rem,5vw,4rem)] font-black reveal">Laboratório ao vivo</h2>
+      <p class="text-2xl text-text-secondary mt-6 reveal">O objetivo aqui é tornar o fluxo visível, repetível e auditável.</p>
+    </div>
+  </div>
+
+  <div class="slide slide-17" data-slide="17">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-60px;right:-60px;background:var(--color-accent-1);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-50px;left:-40px;background:var(--color-accent-2);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">Lab: o que observar</h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="terminal-card p-7 reveal"><div class="big-num">01</div><p class="text-text-secondary mt-2 text-lg">Criar base com <code>helm create workshop-app</code>.</p></div>
+        <div class="terminal-card p-7 reveal"><div class="big-num">02</div><p class="text-text-secondary mt-2 text-lg">Ajustar <code>values.yaml</code> para imagem, porta e réplicas.</p></div>
+        <div class="terminal-card p-7 reveal"><div class="big-num">03</div><p class="text-text-secondary mt-2 text-lg">Rodar <code>helm lint</code> e <code>helm template</code>.</p></div>
+        <div class="terminal-card p-7 reveal"><div class="big-num">04</div><p class="text-text-secondary mt-2 text-lg">Instalar no namespace <code>helm-workshop</code>.</p></div>
+        <div class="terminal-card p-7 reveal"><div class="big-num">05</div><p class="text-text-secondary mt-2 text-lg">Alterar réplica e executar rollback.</p></div>
+        <div class="terminal-card p-7 reveal"><div class="text-3xl mb-2">📄</div><p class="text-text-secondary mt-2 text-lg">Arquivo completo: <code>labs/sessao-1/tutorial.md</code>.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-18" data-slide="18">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-60px;right:-60px;background:var(--color-accent-3);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-50px;left:-40px;background:var(--color-accent-1);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">Durante a demo, repare nisso</h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="terminal-card p-7 reveal"><h3 class="font-display text-2xl mb-3">Render</h3><p class="text-text-secondary text-lg">`helm template` mostra exatamente o que será aplicado.</p></div>
+        <div class="terminal-card p-7 reveal"><h3 class="font-display text-2xl mb-3">Revision</h3><p class="text-text-secondary text-lg">`upgrade` cria uma nova revision.</p></div>
+        <div class="terminal-card p-7 reveal"><h3 class="font-display text-2xl mb-3">Histórico</h3><p class="text-text-secondary text-lg">`history` expõe a linha do tempo da release.</p></div>
+        <div class="terminal-card p-7 reveal"><h3 class="font-display text-2xl mb-3">Recuperação</h3><p class="text-text-secondary text-lg">`rollback` também cria uma nova revision.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-19" data-slide="19">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-60px;right:-60px;background:var(--color-accent-1);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-50px;left:-40px;background:var(--color-accent-2);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">Erros comuns de iniciante</h2>
+      <div class="grid grid-cols-2 gap-6">
+        <div class="terminal-card p-6 reveal"><p class="text-xl text-text-secondary">Pular <code>helm template</code> e descobrir erro só no cluster.</p></div>
+        <div class="terminal-card p-6 reveal"><p class="text-xl text-text-secondary">Usar <code>--set</code> demais em produção.</p></div>
+        <div class="terminal-card p-6 reveal"><p class="text-xl text-text-secondary">Não saber explicar o que está em <code>values.yaml</code>.</p></div>
+        <div class="terminal-card p-6 reveal"><p class="text-xl text-text-secondary">Não versionar mudança de chart.</p></div>
+        <div class="terminal-card p-6 reveal"><p class="text-xl text-text-secondary">Tratar rollback como último recurso, e não como parte do fluxo.</p></div>
+        <div class="terminal-card p-6 reveal"><p class="text-xl text-text-secondary">Confundir pacote reutilizável com manifest avulso.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide slide-20" data-slide="20">
+    <div class="gradient-mesh"><div class="blob" style="width:340px;height:340px;top:-60px;right:-60px;background:var(--color-accent-2);opacity:0.08;"></div><div class="blob" style="width:250px;height:250px;bottom:-50px;left:-40px;background:var(--color-accent-1);opacity:0.06;"></div></div>
+    <div class="content">
+      <h2 class="font-display text-[clamp(2rem,4vw,3rem)] font-bold mb-8 reveal">Fechamento</h2>
+      <div class="grid grid-cols-3 gap-6">
+        <div class="terminal-card p-7 reveal"><div class="text-3xl mb-3">♻️</div><h3 class="font-display text-xl mb-3">Repetibilidade</h3><p class="text-text-secondary">Helm traz repetibilidade com histórico.</p></div>
+        <div class="terminal-card p-7 reveal"><div class="text-3xl mb-3">🛡️</div><h3 class="font-display text-xl mb-3">Mínimo profissional</h3><p class="text-text-secondary">Validar, renderizar, instalar e saber reverter.</p></div>
+        <div class="terminal-card p-7 reveal"><div class="text-3xl mb-3">🚀</div><h3 class="font-display text-xl mb-3">Próxima sessão</h3><p class="text-text-secondary">Design de chart, governança e operação avançada.</p></div>
+      </div>
+      <blockquote class="mt-8 border-l-4 border-accent-1 bg-glass-bg rounded-r-xl p-5 text-xl text-text-secondary reveal">Quem entende o ciclo mínimo já opera com muito menos risco.</blockquote>
+    </div>
+  </div>
+
+  <div class="slide slide-21" data-slide="21">
+    <div class="gradient-mesh">
+      <div class="blob" style="width:500px;height:500px;top:-100px;right:-100px;background:var(--color-accent-1);opacity:0.15;"></div>
+      <div class="blob" style="width:300px;height:300px;bottom:-80px;left:-60px;background:var(--color-accent-2);opacity:0.12;"></div>
+      <div class="blob" style="width:210px;height:210px;top:40%;left:18%;background:var(--color-accent-3);opacity:0.1;"></div>
+    </div>
+    <canvas class="particle-canvas" style="position:absolute;inset:0;z-index:1;"></canvas>
+    <div class="content text-center">
+      <div class="text-[100px] mb-5 animate-[float_3s_ease-in-out_infinite] reveal">❓</div>
+      <h2 class="font-display text-[clamp(2.6rem,5vw,4.4rem)] font-black bg-linear-to-br from-accent-1 via-accent-2 to-accent-3 bg-clip-text text-transparent tracking-tight mb-4 reveal">Perguntas</h2>
+      <p class="text-[clamp(1rem,1.8vw,1.4rem)] text-text-secondary tracking-[4px] uppercase reveal">Obrigado</p>
+    </div>
+  </div>
+</div>
+
+<div class="nav-controls" aria-label="Controles de navegação">
+  <button class="nav-btn" onclick="changeSlide(-1)" aria-label="Slide anterior">&#8249;</button>
+  <div class="slide-dots" id="dots"></div>
+  <button class="nav-btn" onclick="changeSlide(1)" aria-label="Próximo slide">&#8250;</button>
+  <span class="slide-counter" id="counter">1 / N</span>
+</div>
+
+<script>
+let current = 1;
+const total = document.querySelectorAll('.slide').length;
+const dotsContainer = document.getElementById('dots');
+const counter = document.getElementById('counter');
+for (let i = 1; i <= total; i++) { const dot = document.createElement('div'); dot.className = 'dot' + (i === 1 ? ' active' : ''); dot.onclick = () => goToSlide(i); dotsContainer.appendChild(dot); }
+function goToSlide(n) { const prev = document.querySelector('.slide.active'); const next = document.querySelector(`.slide[data-slide="${n}"]`); if (prev) prev.classList.remove('active'); if (next) { next.classList.add('active'); animateSlide(next); } current = n; updateNav(); }
+function changeSlide(dir) { let next = current + dir; if (next < 1) next = total; if (next > total) next = 1; goToSlide(next); }
+function updateNav() { document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i + 1 === current)); counter.textContent = current + ' / ' + total; }
+document.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); changeSlide(1); } if (e.key === 'ArrowLeft') { e.preventDefault(); changeSlide(-1); } });
+let touchStartX = 0;
+document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', (e) => { const diff = touchStartX - e.changedTouches[0].clientX; if (Math.abs(diff) > 50) changeSlide(diff > 0 ? 1 : -1); });
+function animateSlide(slide) {
+  slide.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.transition = 'none'; el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; el.offsetHeight;
+    const delay = i * 0.08; el.style.transition = `opacity 0.35s ease ${delay}s, transform 0.35s ease ${delay}s`;
+    el.style.opacity = '1'; el.style.transform = 'translateY(0px)';
+  });
+  animateSlideEffects(slide);
+}
+function animateSlideEffects(slide) {
+  slide.querySelectorAll('.bar-fill:not(.fill-init)').forEach((bar, i) => { bar.classList.add('fill-init'); bar.style.width = '0%'; bar.style.transition = `width 0.5s ease ${i * 0.08}s`; bar.offsetHeight; bar.style.width = bar.dataset.width + '%'; });
+}
+document.addEventListener('mousemove', (e) => {
+  const spotlight = document.querySelector('.mouse-spotlight');
+  if (spotlight) { const rgb = getComputedStyle(document.documentElement).getPropertyValue('--glow-color-rgb').trim() || '6,182,212'; spotlight.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(${rgb}, 0.06), transparent 40%)`; }
+});
+window.initParticles = function(canvas, options) {
+  if (!canvas) return; const ctx = canvas.getContext('2d'); canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+  const interactive = options.interactive !== false; const count = options.count || (interactive ? 55 : 18); let mx = -1000, my = -1000;
+  const rgb = getComputedStyle(document.documentElement).getPropertyValue('--glow-color-rgb').trim() || '6,182,212'; const [r,g,b] = rgb.split(',').map(Number);
+  const particles = Array.from({ length: count }, () => ({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3, size:Math.random()*2.5+0.8, alpha:Math.random()*0.35+0.1 }));
+  if (interactive) { canvas.addEventListener('mousemove', (e) => { const rect = canvas.getBoundingClientRect(); mx = e.clientX - rect.left; my = e.clientY - rect.top; }); canvas.addEventListener('mouseleave', () => { mx = -1000; my = -1000; }); }
+  (function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { if (interactive) { const dx = p.x - mx, dy = p.y - my, dist = Math.sqrt(dx*dx + dy*dy) || 1; if (dist < 120) { const force = (120 - dist) / 120 * 2; p.vx += (dx / dist) * force * 0.1; p.vy += (dy / dist) * force * 0.1; } } p.vx *= 0.98; p.vy *= 0.98; p.x += p.vx; p.y += p.vy; if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0; if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`; ctx.fill(); }); requestAnimationFrame(animate); })();
+};
+document.querySelectorAll('.particle-canvas').forEach(c => window.initParticles(c, { interactive: true, count: 55 }));
+document.querySelectorAll('.particle-canvas-ambient').forEach(c => window.initParticles(c, { interactive: false, count: 18 }));
+try { animateSlide(document.querySelector('.slide.active')); } catch(e) { console.warn(e); }
+</script>
+</body>
+</html>
