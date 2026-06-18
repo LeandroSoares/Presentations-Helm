@@ -43,14 +43,31 @@ helm history workshop -n helm-workshop
 Observe:
 - cada alteração relevante gera uma revision.
 
-### 5. Simular mudança e rollback
+### 5. Testar a Aplicação
+
+Faça o port-forward para ver a aplicação rodando no seu navegador:
 
 ```bash
-helm upgrade workshop ./starter-chart -n helm-workshop --set replicaCount=3
+kubectl port-forward svc/workshop-starter-chart 8080:80 -n helm-workshop
+```
+Abra o navegador em `http://localhost:8080`. Você verá a cor de fundo padrão!
+
+### 6. Simular mudança visual e rollback
+
+Vamos mudar a cor de fundo do app atualizando apenas o nosso Config via Helm!
+
+```bash
+helm upgrade workshop ./starter-chart -n helm-workshop --set appConfig.bgColor="#8b5cf6"
+```
+
+Acesse o navegador novamente e veja a cor atualizada sem nenhum downtime perceptível.
+Em seguida, confira o histórico e faça o rollback:
+
+```bash
 helm history workshop -n helm-workshop
 helm rollback workshop 1 -n helm-workshop
 helm history workshop -n helm-workshop
 ```
 
 Observe:
-- rollback também cria uma nova revision.
+- rollback também cria uma nova revision e retorna à cor anterior.
