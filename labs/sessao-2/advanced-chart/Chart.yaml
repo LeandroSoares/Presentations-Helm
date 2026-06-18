@@ -1,0 +1,6 @@
+apiVersion: v2
+name: advanced-chart
+description: Um chart Helm de exemplo (hello world) para o Lab de Foundations
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

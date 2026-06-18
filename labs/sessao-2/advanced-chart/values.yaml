@@ -1,0 +1,16 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/leandrosoares/helm-demo-app
+  tag: "latest"
+  pullPolicy: Always
+
+appConfig:
+  bgColor: "#f0f0f0"
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
