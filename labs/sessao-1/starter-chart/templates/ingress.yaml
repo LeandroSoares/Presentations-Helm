@@ -1,0 +1,20 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "starter-chart.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "starter-chart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "starter-chart.fullname" . }}
+                port:
+                  number: {{ .Values.service.port }}
+{{- end }}
