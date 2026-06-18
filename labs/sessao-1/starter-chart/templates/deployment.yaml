@@ -24,6 +24,8 @@ spec:
           env:
             - name: BG_COLOR
               value: {{ .Values.appConfig.bgColor | quote }}
+            - name: NGINX_ENVSUBST_OUTPUT_DIR
+              value: "/usr/share/nginx/html"
           ports:
             - name: http
               containerPort: 80
